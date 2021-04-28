@@ -342,9 +342,7 @@ method is_simple_expr = function
       begin match op with
       (* inlined ops without effects and coeffects are simple
          if their arguments are *)
-      | Cextcall { builtin = true;  (* CR gyorsh: don't require builtin? *)
-                   effects = No_effects;
-                   coeffects = No_coeffects; } ->
+      | Cextcall { effects = No_effects; coeffects = No_coeffects; } ->
         List.for_all self#is_simple_expr args
         (* The following may have side effects *)
       | Capply _ | Cextcall _ | Calloc | Cstore _ | Craise _ | Cprobe _
@@ -389,9 +387,7 @@ method effects_of exp =
   | Cop (op, args, _) ->
     let from_op =
       match op with
-      | Cextcall { builtin = true; effects = e; coeffects = ce; } ->
-        (* CR gyorsh for mshinwell:
-           should we remove the constraint builtin=true? *)
+      | Cextcall { effects = e; coeffects = ce; } ->
         EC.effect_and_coeffect (select_effects e) (select_coeffects ce)
       | Capply _ | Cprobe _ -> EC.arbitrary
       | Calloc -> EC.none
